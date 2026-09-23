@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="aOra — a new intelligence layer for human performance. Join the private early-access list by ByteREX tech.">
+  <meta property="og:title" content="aOra — Human performance, rethought.">
+  <meta property="og:description" content="Something has been built quietly for the last 8 months. Join the early-access list.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/aora-logo.png">
+  <title>aOra — Human performance, rethought.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav shell">
+    <a class="brand" href="#top" aria-label="aOra home"><span class="brand-o">O</span><span>aOra</span></a>
+    <div class="nav-right">
+      <span class="by">BY <b>ByteREX</b> TECH</span>
+      <button class="lang" id="langToggle" type="button" aria-label="Change language">ES</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="orb-wrap" aria-hidden="true">
+        <div class="orb-halo"></div><div class="orb"><span>O</span></div>
+      </div>
+      <p class="eyebrow" data-i18n="eyebrow">8 MONTHS. BUILT IN SILENCE.</p>
+      <h1 data-i18n="heroTitle">Human performance,<br><em>rethought.</em></h1>
+      <p class="hero-copy" data-i18n="heroCopy">Something new is coming for people who refuse to treat their body like a spreadsheet.</p>
+      <form class="waitlist-form" id="waitlistForm" novalidate>
+        <label class="sr-only" for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="your@email.com" data-i18n-placeholder="emailPlaceholder">
+        <button id="submitBtn" type="submit"><span data-i18n="cta">Get Early Access</span><span class="arrow">↗</span></button>
+        <input class="hp" id="website" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+      </form>
+      <p class="micro" data-i18n="micro">Private early access · No spam · Unsubscribe anytime</p>
+      <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
+    </section>
+
+    <section class="manifesto shell">
+      <div class="section-index">01</div>
+      <div class="manifesto-grid">
+        <p class="kicker" data-i18n="mysteryKicker">THE QUIET BUILD</p>
+        <div>
+          <h2 data-i18n="mysteryTitle">We didn't want to build<br><span>another fitness app.</span></h2>
+          <p data-i18n="mysteryBody">For eight months, we've been building something quietly. No launch campaign. No noise. Just an obsessive question: what would happen if your training, recovery, progress and decisions were connected by one intelligent layer?</p>
+          <p data-i18n="mysteryBody2">We are not ready to show everything yet. That's intentional.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="signals shell">
+      <div class="section-index">02</div>
+      <p class="kicker" data-i18n="signalsKicker">EARLY SIGNALS</p>
+      <div class="signal-grid">
+        <article><strong>08</strong><span data-i18n="signal1">months in development</span></article>
+        <article><strong>EU · US</strong><span data-i18n="signal2">designed for a global launch</span></article>
+        <article><strong>AI</strong><span data-i18n="signal3">built around an intelligent coach</span></article>
+      </div>
+      <blockquote data-i18n="quote">“The goal isn't to give you more data. It's to make the right decision easier.”</blockquote>
+    </section>
+
+    <section class="tease shell">
+      <div class="tease-card"><div class="mini-orb">O</div><span data-i18n="tease">The interface is only the beginning.</span></div>
+    </section>
+
+    <section class="final shell">
+      <p class="kicker" data-i18n="finalKicker">WHEN IT'S READY</p>
+      <h2 data-i18n="finalTitle">Be there before<br><em>everyone else.</em></h2>
+      <p data-i18n="finalCopy">Join the private list. We'll send you the first signal when aOra is ready to be seen.</p>
+      <form class="waitlist-form final-form" id="waitlistForm2" novalidate>
+        <label class="sr-only" for="email2">Email</label>
+        <input id="email2" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="your@email.com" data-i18n-placeholder="emailPlaceholder">
+        <button type="submit"><span data-i18n="cta">Get Early Access</span><span class="arrow">↗</span></button>
+      </form>
+      <div class="form-message" id="formMessage2" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="footer shell">
+    <span>© <span id="year"></span> ByteREX tech</span>
+    <div><a href="#" data-i18n="privacy">Privacy Policy</a><a href="#" data-i18n="terms">Terms</a></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

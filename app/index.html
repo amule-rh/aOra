@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070a10">
+<title>Superhuman Coach · aOra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#071018">
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/supabase.js"></script>
+<script src="js/affiliates.js"></script>
+<script src="js/activities.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fit-file-parser@4.1.0/dist/fit-file-parser.min.js"></script>
+<script src="js/gps.js"></script>
+<script src="js/activity-elite.js"></script>
+<script src="js/elite-os.js"></script>
+<script src="js/groq.js"></script>
+<script defer src="js/app.js"></script>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<section id="authGate" class="auth-gate">
+  <div class="auth-panel"><div class="auth-lang"><label data-i18n="language.label">Language</label><select id="languageSelectAuth"></select></div>
+    <div class="mini-brand"><span class="mini-o">O</span><span>aOra</span></div>
+    <h1 data-i18n="auth.title">Your AI Coach</h1>
+    <p data-i18n="auth.tagline">Your training. Your data. Your evolution.</p>
+    <div id="setupBanner" class="setup hidden">
+      <b data-i18n="setup.title">First setup:</b> <span data-i18n="setup.text">Enter your Supabase URL and anon/public key here and, if you want AI, your Groq key.</span>
+      <div class="setup-fields">
+        <input id="authSupabaseUrl" data-i18n-placeholder="setup.supabaseUrl">
+        <input id="authSupabaseAnon" data-i18n-placeholder="setup.supabaseAnon">
+        <input id="authGroqKey" type="password" data-i18n-placeholder="setup.groqKey">
+        <input id="authGroqModel" data-i18n-placeholder="setup.model" value="openai/gpt-oss-120b">
+        <input id="authGroqVisionModel" placeholder="Groq vision model" value="meta-llama/llama-4-scout-17b-16e-instruct">
+        <button id="saveAuthConfig" type="button" class="secondary wide" data-i18n="setup.save">Save configuration</button>
+      </div>
+    </div>
+    <input id="authMode" type="hidden" value="signup">
+    <div id="authNameWrap"><input id="authName" data-i18n-placeholder="auth.name"></div>
+    <input id="authEmail" type="email" data-i18n-placeholder="auth.email">
+    <input id="authPassword" type="password" data-i18n-placeholder="auth.password">
+    <button id="authSubmit" class="primary wide" data-i18n="auth.signup">Create account</button>
+    <button id="authToggle" class="text-btn" data-i18n="auth.haveAccount">I already have an account</button>
+    <small data-i18n="auth.rls">Authentication via Supabase Auth. Your data is protected by RLS and belongs to your account.</small>
+  </div>
+</section>
+
+<div id="appShell" class="hidden">
+<header class="topbar">
+  <div class="brand"><img src="assets/aora-o-live.png" alt="aOra"><span data-i18n="brand">SUPERHUMAN COACH</span></div>
+  <div class="top-user"><span id="userName">—</span><select id="languageSelect" aria-label="Language"></select><button id="logoutBtn" class="icon-btn" data-i18n="nav.logout">Sign out</button></div>
+</header>
+
+<main>
+<section id="chat" class="screen active">
+  <div class="hero">
+    <button id="orb" class="orb" data-state="idle" data-i18n-aria="chat.aria" aria-label="Talk to aOra">
+      <span class="orb-aura aura-back"></span><span class="orb-aura aura-front"></span>
+      <span class="orb-ripple ripple-a"></span><span class="orb-ripple ripple-b"></span>
+      <span class="orb-ring ring-a"></span><span class="orb-ring ring-b"></span>
+      <span class="orb-logo-wrap"><img class="orb-logo" src="assets/aora-o-live.png" alt="aOra"><span class="orb-sweep"></span></span>
+      <span class="orb-particles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    </button>
+    <div id="coachState" class="coach-state" data-i18n="coach.state.ready">READY</div>
+    <h1>aOra</h1>
+    <p><span data-i18n="chat.description">Your adaptive coach for strength, hypertrophy, power and performance.</span></p>
+  </div>
+  <div class="chat-wrap">
+    <div id="chatMessages" class="chat-messages"></div><div class="chat-recommendations"><div class="recommendation-head"><div><span class="eyebrow" data-i18n="aff.open">Recommended for you</span></div><select data-affiliate-region aria-label="Region"><option value="EU">Europe</option><option value="US">United States</option></select></div><div id="recommendationGrid" class="recommendation-grid"></div><div class="affiliate-disclosure small" data-i18n="aff.disclosure">Affiliate links — I may receive a commission at no extra cost to you. Recommendations are based on usefulness, not commission.</div></div>
+    <div class="chat-compose"><textarea id="chatInput" rows="1" data-i18n-placeholder="chat.placeholder"></textarea><button id="sendBtn" class="primary" data-i18n="chat.send">Send</button></div>
+  </div>
+</section>
+
+<section id="training" class="screen">
+  <div class="section-head"><div><span class="eyebrow" data-i18n="training.eyebrow">TODAY</span><h2 data-i18n="training.title">Today’s training</h2><p id="workoutMeta"></p></div><button id="generateTop" class="secondary" data-i18n="training.regenerate">Regenerate</button></div>
+  <div class="coach-note"><span>O</span><div><b data-i18n="training.reading">aOra’s read</b><p id="workoutNote"></p><p id="adaptationNote" class="adaptation"></p></div></div>
+  <div id="workoutCards" class="exercise-grid"></div>
+</section>
+
+<section id="evolution" class="screen">
+  <div class="section-head"><div><span class="eyebrow">LONGITUDINAL DATA</span><h2 data-i18n="evolution.title">Evolution</h2><p data-i18n="evolution.subtitle">Body measurements and trends.</p></div></div>
+  <div class="metric-grid">
+    <div class="metric"><span>Peso actual</span><b id="metricWeight">—</b></div>
+    <div class="metric"><span>Cintura</span><b id="metricWaist">—</b></div>
+    <div class="metric"><span>% grasa</span><b id="metricBF">—</b></div>
+    <div class="metric"><span>Delta peso</span><b id="metricDelta">—</b></div>
+  </div>
+  <div class="chart-grid">
+    <div class="chart-card"><h3>Peso</h3><div class="chart-box"><canvas id="weightChart"></canvas></div></div>
+    <div class="chart-card"><h3>Cintura</h3><div class="chart-box"><canvas id="waistChart"></canvas></div></div>
+  </div>
+  <div class="panel">
+    <h3 data-i18n="evolution.new">New measurement</h3>
+    <form id="measurementForm" class="form-grid">
+      <label>Fecha<input id="measurementDate" name="measured_at" type="date" required></label>
+      <label><span data-i18n="profile.weight">Peso kg</span><input name="weight_kg" type="number" step=".1"></label>
+      <label>% grasa<input name="body_fat_pct" type="number" step=".1"></label>
+      <label>Pecho cm<input name="chest_cm" type="number" step=".1"></label>
+      <label>Hombros cm<input name="shoulders_cm" type="number" step=".1"></label>
+      <label>Bíceps izq.<input name="biceps_left_cm" type="number" step=".1"></label>
+      <label>Bíceps der.<input name="biceps_right_cm" type="number" step=".1"></label>
+      <label>Cintura cm<input name="waist_cm" type="number" step=".1"></label>
+      <label>Cadera cm<input name="hips_cm" type="number" step=".1"></label>
+      <label>Muslo izq.<input name="thigh_left_cm" type="number" step=".1"></label>
+      <label>Muslo der.<input name="thigh_right_cm" type="number" step=".1"></label>
+      <label>Gemelo cm<input name="calf_cm" type="number" step=".1"></label>
+      <label>Cuello cm<input name="neck_cm" type="number" step=".1"></label>
+      <label class="wide-field">Notas<textarea name="notes" rows="2" placeholder="Sensaciones, condiciones de medición…"></textarea></label>
+      <button class="primary wide-field" type="submit" data-i18n="evolution.save">Save measurement</button>
+    </form>
+  </div>
+  <div class="panel table-wrap"><h3 data-i18n="evolution.history">History</h3><table><thead><tr><th>Fecha</th><th>Peso</th><th>Grasa</th><th>Pecho</th><th>Cintura</th><th>Bíceps</th><th>Muslo</th></tr></thead><tbody id="measurementRows"></tbody></table></div>
+</section>
+
+<section id="activities" class="screen">
+  <div class="section-head">
+    <div><span class="eyebrow" data-i18n="activity.eyebrow">ACTIVITY LOG</span><h2 data-i18n="activity.title">Activities</h2><p data-i18n="activity.subtitle">Import a workout from a screenshot or log it manually.</p></div>
+    <div class="activity-actions"><button id="activityUploadBtn" class="primary" data-i18n="activity.uploadPhoto">Upload activity with photo</button><button id="activityManualBtn" class="secondary" data-i18n="activity.manual">Add manually</button><button id="activityImportFileBtn" class="secondary" data-i18n="activity.importFile">Import GPX / FIT / TCX</button><button id="activityExportAll" class="secondary" data-i18n="activity.exportAll">Export JSON</button><input id="activityFileInput" type="file" multiple accept=".gpx,.fit,.tcx,application/gpx+xml,application/octet-stream" hidden></div>
+    <button id="gpsOpenBtn" class="secondary gps-open-btn" data-i18n="activity.gps.open">Start GPS activity</button>
+  </div>
+  <div class="coach-note"><span>O</span><div><b data-i18n="activity.coachRead">aOra activity read</b><p id="activityCoachSummary" data-i18n="activity.coachNoData">No activities yet. Your imported sessions will become part of the coaching context.</p></div></div>
+  <div class="athlete-os panel"><div class="os-head"><div><span class="eyebrow" data-i18n="activity.os.eyebrow">ATHLETE OS</span><h3 data-i18n="activity.os.title">Live training intelligence</h3></div><div class="os-pulse">O</div></div><div class="os-grid"><div><span data-i18n="activity.os.load7">7-day load</span><b id="osLoad7">—</b></div><div><span data-i18n="activity.os.sessions">Sessions</span><b id="osSessions7">—</b></div><div><span data-i18n="activity.os.distance7">Endurance volume</span><b id="osDistance7">—</b></div><div><span data-i18n="activity.os.statusLabel">Status</span><b id="osStatus">—</b></div></div><p id="osNote" class="os-note">—</p></div>
+  <div class="elite-activity-toolbar panel"><div class="filter-row"><label><span data-i18n="activity.filterType">Type</span><select id="activityFilterType"><option value="all" data-i18n="aff.category.all">All</option></select></label><label><span data-i18n="activity.from">From</span><input id="activityFilterFrom" type="date"></label><label><span data-i18n="activity.to">To</span><input id="activityFilterTo" type="date"></label><label><span data-i18n="activity.minDistance">Min km</span><input id="activityFilterMin" type="number" min="0" step="0.1"></label><button id="activityApplyFilters" class="primary" data-i18n="activity.apply">Apply</button><button id="activityClearFilters" class="secondary" data-i18n="activity.clear">Clear</button></div><p id="activityFileStatus" class="activity-analysis-status"></p></div>
+  <div class="elite-dashboard"><div class="elite-kpis"><div class="activity-stat"><span data-i18n="activity.weekVolume">7-day volume</span><b id="eliteWeekVolume">—</b></div><div class="activity-stat"><span data-i18n="activity.weekDistance">7-day distance</span><b id="eliteWeekDistance">—</b></div><div class="activity-stat"><span data-i18n="activity.weekElevation">7-day elevation</span><b id="eliteWeekElevation">—</b></div><div class="activity-stat"><span data-i18n="activity.trainingLoad">Relative load</span><b id="eliteLoad">—</b></div></div><div class="panel"><div class="section-head"><div><span class="eyebrow" data-i18n="activity.heatmap">CONSISTENCY</span><h3 data-i18n="activity.heatmapTitle">Activity heatmap</h3></div></div><div id="activityHeatmap" class="activity-heatmap"></div></div><div class="panel"><div class="section-head"><div><span class="eyebrow" data-i18n="activity.records">RECORDS</span><h3 data-i18n="activity.recordsTitle">Personal records</h3></div></div><div id="activityRecords" class="record-list"></div></div><div class="panel"><div class="section-head"><div><span class="eyebrow" data-i18n="activity.trends">TRENDS</span><h3 data-i18n="activity.trendsTitle">Distance trend</h3></div></div><div class="elite-chart"><canvas id="activityTrendChart"></canvas></div></div></div>
+  <div class="activity-stats-grid">
+    <div class="activity-stat"><span data-i18n="activity.weekTime">This week · time</span><b id="activityWeekTime">—</b></div>
+    <div class="activity-stat"><span data-i18n="activity.weekDistance">This week · distance</span><b id="activityWeekDistance">—</b></div>
+    <div class="activity-stat"><span data-i18n="activity.weekCount">This week · sessions</span><b id="activityWeekCount">0</b></div>
+    <div class="activity-stat"><span data-i18n="activity.monthTime">This month · time</span><b id="activityMonthTime">—</b></div>
+    <div class="activity-stat"><span data-i18n="activity.monthDistance">This month · distance</span><b id="activityMonthDistance">—</b></div>
+    <div class="activity-stat"><span data-i18n="activity.monthCount">This month · sessions</span><b id="activityMonthCount">0</b></div>
+  </div>
+  <div class="panel"><h3 data-i18n="activity.last7">Last 7 days</h3><div class="activity-chart"><canvas id="activityStatsChart"></canvas></div></div>
+  <div class="gps-panel panel">
+    <div class="section-head"><div><span class="eyebrow" data-i18n="activity.gps.eyebrow">LIVE GPS</span><h3 data-i18n="activity.gps.title">Track an activity</h3><p data-i18n="activity.gps.subtitle">Use your phone GPS to record your route in real time.</p></div></div>
+    <div id="gpsMap" class="gps-map"></div>
+    <div class="gps-metrics"><div><span data-i18n="activity.gps.time">Time</span><b id="gpsTime">00:00</b></div><div><span data-i18n="activity.gps.distance">Distance</span><b><span id="gpsDistance">0.00</span> km</b></div><div><span data-i18n="activity.gps.pace">Pace</span><b id="gpsPace">—</b></div><div><span data-i18n="activity.gps.speed">Speed</span><b><span id="gpsSpeed">—</span> km/h</b></div><div><span data-i18n="activity.gps.elevation">Elevation</span><b id="gpsElevationGain">0 m</b></div><div><span data-i18n="activity.gps.signal">GPS</span><b id="gpsSignal">—</b></div></div>
+    <div class="gps-controls"><select id="gpsActivityType"></select><button id="gpsStartBtn" class="primary" data-i18n="activity.gps.start">Start activity</button><button id="gpsPauseBtn" class="secondary hidden" data-i18n="activity.gps.pause">Pause</button><button id="gpsResumeBtn" class="primary hidden" data-i18n="activity.gps.resume">Resume</button><button id="gpsFinishBtn" class="danger hidden" data-i18n="activity.gps.finish">Finish</button></div>
+    <p id="gpsStatus" class="activity-analysis-status" data-i18n="activity.gps.ready">Ready. Location permission is required.</p>
+  </div>
+  <div class="panel gear-panel"><div class="section-head"><div><span class="eyebrow" data-i18n="activity.gear">GEAR</span><h3 data-i18n="activity.gearTitle">Equipment mileage</h3></div><button id="gearAddBtn" class="secondary" data-i18n="activity.gearAdd">Add gear</button></div><form id="gearForm" class="gear-form hidden"><input name="name" required placeholder="Gear name"><select name="type"><option value="shoes">Shoes</option><option value="bike">Bike</option><option value="other">Other</option></select><input name="brand" placeholder="Brand"><input name="model" placeholder="Model"><input name="max_distance_km" type="number" min="0" step="1" placeholder="Max km"><button class="primary" type="submit" data-i18n="activity.gearSave">Save</button></form><div id="gearList" class="gear-list"></div></div>
+  <div class="activity-period" data-i18n="activity.feed">Activity feed</div>
+  <div id="activityFeed" class="activity-feed"></div>
+</section>
+
+<section id="affiliate" class="screen">
+  <div class="section-head"><div><span class="eyebrow">RECOMMENDED</span><h2 data-i18n="aff.title">Gear & Supplements</h2><p data-i18n="aff.subtitle">Selected products that can add practical value to your training.</p></div>
+    <div class="affiliate-controls"><label><span data-i18n="aff.region">Region</span><select data-affiliate-region><option value="EU">Europe</option><option value="US">United States</option></select></label><label><span data-i18n="aff.filter">Category</span><select id="affiliateFilter"><option value="all" data-i18n="aff.category.all">All</option><option value="supplements" data-i18n="aff.category.supplements">Supplements</option><option value="equipment" data-i18n="aff.category.equipment">Equipment</option><option value="apparel" data-i18n="aff.category.apparel">Apparel</option><option value="recovery" data-i18n="aff.category.recovery">Recovery</option><option value="books" data-i18n="aff.category.books">Books</option></select></label></div>
+  </div>
+  <div class="affiliate-disclosure" data-i18n="aff.disclosure">Affiliate links — I may receive a commission at no extra cost to you. Recommendations are based on usefulness, not commission.</div>
+  <div id="affiliateGrid" class="product-grid"></div>
+  <p class="affiliate-footnote" data-i18n="aff.commissionNote">Availability, price and commission terms can change.</p>
+</section>
+
+<section id="profile" class="screen">
+  <div class="section-head"><div><span class="eyebrow">ATHLETE OS</span><h2 data-i18n="profile.title">Profile</h2><p data-i18n="profile.subtitle">The biological and practical foundation of your programming.</p></div></div>
+  <div class="panel"><p id="profileEmail" class="muted"></p>
+  <form id="profileForm" class="form-grid">
+    <label><span data-i18n="profile.name">Nombre</span><input name="name"></label>
+    <label><span data-i18n="profile.age">Edad</span><input name="age" type="number"></label>
+    <label><span data-i18n="profile.sex">Sexo</span><select name="sex"><option value="">—</option><option>Hombre</option><option>Mujer</option><option>Otro / prefiero no decirlo</option></select></label>
+    <label><span data-i18n="profile.weight">Peso kg</span><input name="weight_kg" type="number" step=".1"></label>
+    <label><span data-i18n="profile.height">Altura cm</span><input name="height_cm" type="number" step=".1"></label>
+    <label>Nivel<select name="training_level"><option value="">—</option><option>Principiante</option><option>Intermedio</option><option>Avanzado</option><option>Élite</option></select></label>
+    <label>Objetivo<select name="goal"><option value="">—</option><option>Recomposición</option><option>Hipertrofia</option><option>Fuerza</option><option>Pérdida de grasa</option><option>Potencia / rendimiento</option></select></label>
+    <label>Tiempo disponible<select name="available_minutes"><option value="">—</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></label>
+    <label class="wide-field">Lesiones / historial<textarea name="injuries"></textarea></label>
+    <label class="wide-field">Limitaciones físicas<textarea name="physical_limitations" data-i18n-placeholder="profile.limitationsPh"></textarea></label>
+    <label class="wide-field">Material disponible<textarea name="equipment" data-i18n-placeholder="profile.equipmentPh"></textarea></label>
+    <label class="wide-field">Espacio disponible<textarea name="available_space" data-i18n-placeholder="profile.spacePh"></textarea></label>
+    <label class="wide-field">Recuperación<textarea name="recovery" data-i18n-placeholder="profile.recoveryPh"></textarea></label>
+    <label class="wide-field">Preferencias<textarea name="preferences"></textarea></label>
+    <button class="primary wide-field" type="submit" data-i18n="profile.save">Save profile</button>
+  </form></div>
+
+  <div class="panel config"><h3 data-i18n="profile.tech">Technical configuration</h3>
+    <p class="muted"><span data-i18n="profile.techText">Keys are stored locally in this browser. Never use a service_role key in a static website.</span></p>
+    <label>Supabase URL<input id="supabaseUrl"></label>
+    <label>Supabase anon/public key<input id="supabaseAnon"></label>
+    <label>Groq API key<input id="groqKey" type="password"></label>
+    <label>Modelo Groq<input id="groqModel"></label>
+    <label>Modelo Groq Vision<input id="groqVisionModel"></label>
+    <button id="saveConfig" class="secondary" data-i18n="setup.save">Save configuration</button>
+  </div>
+</section>
+</main>
+
+<div id="activityUploadModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head"><h3 data-i18n="activity.uploadTitle">Import activity from photo</h3><button id="activityUploadClose" class="icon-btn">×</button></div>
+    <div id="activityUploadStep">
+      <div class="activity-upload-zone">
+        <input id="activityImageInput" type="file" accept="image/*" capture="environment">
+        <p class="muted" data-i18n="activity.uploadHint">Use a screenshot from Apple Fitness, Garmin, Strava, NRC, Hevy, Strong or another training app.</p>
+        <div id="activityUploadPreview" class="activity-upload-preview"></div>
+        <button id="activityAnalyzeBtn" class="primary wide" type="button" data-i18n="activity.analyze">Analyze screenshot</button>
+        <p id="activityAnalysisStatus" class="activity-analysis-status"></p>
+      </div>
+    </div>
+    <div id="activityConfirmStep" class="hidden">
+      <form id="activityConfirmForm" class="form-grid">
+        <label><span data-i18n="activity.typeLabel">Type</span><select id="activityConfirmType" name="type"></select></label>
+        <label><span data-i18n="activity.titleLabel">Title</span><input name="title"></label>
+        <label><span data-i18n="activity.date">Date & time</span><input name="activity_at" type="datetime-local"></label>
+        <label><span data-i18n="activity.duration">Duration (seconds)</span><input name="duration_seconds" type="number" min="0"></label>
+        <label><span data-i18n="activity.distance">Distance (km)</span><input name="distance_km" type="number" step="0.001" min="0"></label>
+        <label><span data-i18n="activity.pace">Pace (sec/km)</span><input name="pace_seconds_per_km" type="number" min="0"></label>
+        <label><span data-i18n="activity.calories">Calories</span><input name="calories" type="number" min="0"></label>
+        <label><span data-i18n="activity.avgHr">Average HR</span><input name="avg_heart_rate" type="number" min="0"></label>
+        <label><span data-i18n="activity.maxHr">Max HR</span><input name="max_heart_rate" type="number" min="0"></label>
+        <label><span data-i18n="activity.source">Source</span><select name="source"><option value="unknown">Unknown</option><option value="apple_fitness">Apple Fitness</option><option value="garmin">Garmin</option><option value="strava">Strava</option><option value="nike_run_club">Nike Run Club</option><option value="hevy">Hevy</option><option value="strong">Strong</option><option value="other">Other</option></select></label>
+        <label class="wide-field"><span data-i18n="activity.notes">Notes</span><textarea name="notes" rows="2"></textarea></label>
+        <div class="wide-field"><div class="activity-confidence"><span data-i18n="activity.confidence">AI confidence</span>: <b id="activityConfidence">—</b></div></div>
+        <div class="wide-field"><div class="section-head" style="margin:0 0 8px"><h3 data-i18n="activity.exercises">Strength exercises</h3><button id="addExerciseRow" class="secondary" type="button" data-i18n="activity.addExercise">Add exercise</button></div><div id="activityExerciseRows" class="strength-rows"></div></div>
+        <div class="wide-field activity-source-note" data-i18n="activity.confirmHint">Review every value before saving. If the screenshot is unclear, correct or complete the fields manually.</div>
+        <div class="wide-field modal-actions"><button type="submit" class="primary" data-i18n="activity.save">Confirm & save activity</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="manualActivityModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-head"><h3 data-i18n="activity.manualTitle">Add activity manually</h3><button id="manualActivityClose" class="icon-btn">×</button></div>
+    <form id="manualActivityForm" class="form-grid">
+      <label><span data-i18n="activity.typeLabel">Type</span><select id="manualType" name="type"></select></label>
+      <label><span data-i18n="activity.titleLabel">Title</span><input name="title"></label>
+      <label><span data-i18n="activity.date">Date & time</span><input name="activity_at" type="datetime-local"></label>
+      <label><span data-i18n="activity.duration">Duration (seconds)</span><input name="duration_seconds" type="number" min="0"></label>
+      <label><span data-i18n="activity.distance">Distance (km)</span><input name="distance_km" type="number" step="0.001" min="0"></label>
+      <label><span data-i18n="activity.pace">Pace (sec/km)</span><input name="pace_seconds_per_km" type="number" min="0"></label>
+      <label><span data-i18n="activity.calories">Calories</span><input name="calories" type="number" min="0"></label>
+      <label><span data-i18n="activity.avgHr">Average HR</span><input name="avg_heart_rate" type="number" min="0"></label>
+      <label><span data-i18n="activity.maxHr">Max HR</span><input name="max_heart_rate" type="number" min="0"></label>
+      <label class="wide-field"><span data-i18n="activity.notes">Notes</span><textarea name="notes" rows="2"></textarea></label>
+      <div class="wide-field"><div class="section-head" style="margin:0 0 8px"><h3 data-i18n="activity.exercises">Strength exercises</h3><button id="addManualExerciseRow" class="secondary" type="button" data-i18n="activity.addExercise">Add exercise</button></div><div id="manualExerciseRows" class="strength-rows"></div></div>
+      <div class="wide-field modal-actions"><button type="submit" class="primary" data-i18n="activity.save">Save activity</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="activityModal" class="modal">
+  <div class="modal-card"><div class="modal-head"><h3 id="activityModalTitle">Activity</h3><button id="activityModalClose" class="icon-btn">×</button></div><div id="activityModalBody"></div></div>
+</div>
+
+<div id="gpsSummaryModal" class="modal"><div class="modal-card"><div class="modal-head"><h3 data-i18n="activity.gps.summary">Activity summary</h3><button id="gpsSummaryClose" class="icon-btn">×</button></div><h2 id="gpsSummaryTitle">Running</h2><div id="gpsSummaryMap" class="gps-summary-map"></div><div class="gps-summary-grid"><div><span data-i18n="activity.gps.time">Time</span><b id="gpsSummaryTime">—</b></div><div><span data-i18n="activity.gps.distance">Distance</span><b id="gpsSummaryDistance">—</b></div><div><span data-i18n="activity.gps.pace">Pace</span><b id="gpsSummaryPace">—</b></div><div><span data-i18n="activity.calories">Calories</span><b id="gpsSummaryCalories">—</b></div><div><span data-i18n="activity.gps.elevation">Elevation</span><b id="gpsSummaryElevation">—</b></div></div></div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-screen="chat"><span>O</span><span data-i18n="nav.chat">Chat</span></button>
+  <button class="nav-btn" data-screen="training"><span>◈</span><span data-i18n="nav.training">Training</span></button>
+  <button class="nav-btn" data-screen="evolution"><span>↗</span><span data-i18n="nav.evolution">Evolution</span></button>
+  <button class="nav-btn" data-screen="affiliate"><span>✦</span><span data-i18n="aff.title">Gear & Supplements</span></button><button class="nav-btn" data-screen="activities"><span>◉</span><span data-i18n="nav.activities">Activities</span></button><button class="nav-btn" data-screen="profile"><span>◎</span><span data-i18n="nav.profile">Profile</span></button>
+</nav>
+</div>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
+</body>
+</html>
