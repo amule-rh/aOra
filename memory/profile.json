@@ -1,0 +1,12 @@
+{
+  "name": "",
+  "age": null,
+  "sex": "",
+  "heightCm": null,
+  "weightKg": null,
+  "level": "Intermediate",
+  "goal": "Recomposition",
+  "equipment": "",
+  "constraints": "",
+  "recovery": ""
+}
