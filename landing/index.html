@@ -8,12 +8,12 @@
   <meta property="og:title" content="aOra — Human performance, rethought.">
   <meta property="og:description" content="Something has been built quietly for the last 8 months. Join the early-access list.">
   <meta property="og:type" content="website">
-  <link rel="icon" href="assets/aora-logo.png">
+  <link rel="icon" href="/landing/assets/aora-logo.png">
   <title>aOra — Human performance, rethought.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/landing/styles.css">
 </head>
 <body>
   <div class="noise" aria-hidden="true"></div>
@@ -78,6 +78,7 @@
         <label class="sr-only" for="email2">Email</label>
         <input id="email2" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="your@email.com" data-i18n-placeholder="emailPlaceholder">
         <button type="submit"><span data-i18n="cta">Get Early Access</span><span class="arrow">↗</span></button>
+        <input class="hp" id="website2" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
       </form>
       <div class="form-message" id="formMessage2" role="status" aria-live="polite"></div>
     </section>
@@ -89,7 +90,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+  <script src="/landing/config.js"></script>
+  <script src="/landing/app.js"></script>
 </body>
 </html>

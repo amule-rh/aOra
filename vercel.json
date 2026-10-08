@@ -1,5 +1,11 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    {"source": "/app", "destination": "/app/", "permanent": false}
+  ],
+  "rewrites": [
+    {"source": "/", "destination": "/landing/index.html"}
+  ],
   "headers": [
     {
       "source": "/(.*)",
