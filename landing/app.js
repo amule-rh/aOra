@@ -16,7 +16,7 @@
     $$('[data-i18n-placeholder]').forEach(el=>el.placeholder=copy[state.lang][el.dataset.i18nPlaceholder]);
   }
   async function saveLead(email, form, messageEl){
-    if ($('#website')?.value) return false;
+    if (form.querySelector('.hp')?.value) return false;
     const normalized=email.trim().toLowerCase();
     if(!/^\S+@\S+\.\S+$/.test(normalized)){messageEl.textContent=state.lang==='es'?'Introduce un email válido.':'Enter a valid email address.';return false}
     const last=Number(localStorage.getItem('aora_waitlist_ts')||0);

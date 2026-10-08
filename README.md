@@ -6,17 +6,17 @@ Pre-launch landing + Superhuman Coach product in one deployable repository.
 
 - `/` — public aOra landing page and waitlist
 - `/app/` — Superhuman Coach / aOra athlete application
-- `/supabase/schema.sql` — unified database schema, RLS, activity/GPS/gear tables and waitlist
+- `/app/supabase/schema.sql` — unified database schema, RLS, activity/GPS/gear tables and waitlist
 
 ## Deploy
 
 Connect this repository to Vercel with no build command and the repository root as the project root.
 
-The landing is served at `/` and the application at `/app/`.
+Vercel serves the landing at `/` and redirects `/app` to `/app/` for the application. Landing assets are rooted under `/landing/` so the root rewrite is safe.
 
 ## Supabase
 
-Run `supabase/schema.sql` in the Supabase SQL editor. Use only the public anon/publishable key in browser configuration. Never expose `service_role`.
+Run `app/supabase/schema.sql` in the Supabase SQL editor. Use only the public anon/publishable key in browser configuration. Never expose `service_role`.
 
 For the landing, set the same public Supabase URL/key in `landing/config.js`.
 
